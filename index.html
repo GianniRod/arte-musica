@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Master - App de Estudio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #f1f5f9; }
+        
+        /* Animaciones suaves */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos específicos para el modo estudio */
+        .blur-content { filter: blur(6px); user-select: none; opacity: 0; transform: translateY(10px); }
+        .reveal-content { filter: none; opacity: 1; transform: translateY(0); transition: all 0.4s ease-out; }
+        
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-teal-500 selection:text-white pb-20">
+
+    <!-- HEADER -->
+    <header class="bg-[#1e1e1e] border-b border-white/10 sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="bg-gradient-to-br from-teal-500 to-emerald-600 p-2 rounded-lg shadow-lg shadow-teal-900/50">
+                    <i data-lucide="brain-circuit" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-200 to-emerald-400">
+                        Music Master
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium tracking-wide">APP DE ESTUDIO VISUAL</p>
+                </div>
+            </div>
+            
+            <nav class="flex bg-[#2a2a2a] p-1 rounded-lg w-full sm:w-auto justify-center sm:justify-end">
+                <button onclick="switchTab('teoria')" id="btn-teoria" 
+                    class="flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-teal-600 text-white shadow-md">
+                    Teoría
+                </button>
+                <button onclick="switchTab('repertorio')" id="btn-repertorio" 
+                    class="flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white">
+                    Repertorio
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- PESTAÑA TEORÍA -->
+        <div id="tab-teoria" class="space-y-8 fade-in">
+            <!-- Contenido inyectado por JS -->
+        </div>
+
+        <!-- PESTAÑA REPERTORIO -->
+        <div id="tab-repertorio" class="hidden fade-in">
+            <!-- Barra de Control -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 bg-[#1e1e1e] p-4 rounded-xl border border-white/5 shadow-lg">
+                <div class="text-center sm:text-left">
+                    <h2 class="text-xl font-bold text-white">Lista de Obras</h2>
+                    <p class="text-sm text-slate-400">Toca las tarjetas para revelar detalles</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-[#2a2a2a] px-3 py-1.5 rounded-full border border-white/10 cursor-pointer" onclick="toggleStudyMode()">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Modo Estudio</span>
+                        <div id="study-toggle-bg" class="relative w-12 h-6 rounded-full transition-colors duration-300 bg-slate-600">
+                            <div id="study-toggle-circle" class="absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 translate-x-0"></div>
+                        </div>
+                    </div>
+                    <button id="hide-all-btn" onclick="resetStudyCards()" class="hidden text-xs text-slate-400 hover:text-white underline">
+                        Ocultar Todo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de Canciones -->
+            <div id="repertoire-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Tarjetas inyectadas por JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- DATOS ---
+        const theoryData = [
+            {
+                title: '1. Fundamentos de la Música y Sonido',
+                icon: 'music',
+                description: '',
+                content: [
+                    { subtitle: 'Definición', text: 'El arte de organizar los sonidos y silencios.', highlight: true },
+                    { 
+                        subtitle: 'Los 3 Componentes',
+                        list: [
+                            { term: 'Melodía', def: 'Organización secuencial (horizontal). Va adelante en el tiempo.', icon: 'activity' },
+                            { term: 'Armonía', def: 'Secuencial y vertical (acordes). Marco de referencia tonal.', icon: 'layers' },
+                            { term: 'Ritmo', def: 'Sucesión ordenada de eventos sonoros (duraciones).', icon: 'clock' }
+                        ]
+                    },
+                    {
+                        subtitle: 'Cualidades del Sonido',
+                        list: [
+                            { term: 'Altura (Tono)', def: 'Agudo o Grave. Frecuencia (Hz). Rango: 20Hz - 20kHz.', icon: 'trending-up' },
+                            { term: 'Duración', def: 'Largo o Corto. Figuras musicales.', icon: 'clock' },
+                            { term: 'Intensidad', def: 'Volumen. Decibeles (dB). 20dB (aula) vs 120dB (dolor).', icon: 'volume-2' },
+                            { term: 'Timbre', def: 'Color característico. Distingue instrumentos.', icon: 'mic-2' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: '2. Textura Musical',
+                icon: 'layers',
+                description: 'La forma de combinar sonidos (capas).',
+                content: [
+                    {
+                        subtitle: 'Tipos de Textura',
+                        cards: [
+                            { title: 'Monofonía', desc: 'Una sola línea melódica, mismo ritmo.', example: 'Himno a San Juan', color: 'border-blue-400' },
+                            { title: 'Homofonía', desc: 'Varias melodías, diferentes alturas, mismo ritmo.', example: 'Aleluya (Händel)', color: 'border-emerald-400' },
+                            { title: 'Polifonía', desc: 'Varias melodías independientes o imitativas.', example: 'Crucifixus (Lotti)', color: 'border-purple-400' },
+                            { title: 'Melodía Acompañada', desc: 'Melodía principal + fondo armónico.', example: 'Nessun Dorma', color: 'border-yellow-400' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: '3. Formas y Géneros',
+                icon: 'book-open',
+                content: [
+                    {
+                        subtitle: 'Formas Vocales',
+                        list: [
+                            { term: 'Cantata', def: 'Alterna narrador/personajes sin actuación.' },
+                            { term: 'Oratorio', def: 'Ópera religiosa sin escena (Ej: Gloria Vivaldi).' },
+                            { term: 'Recitativo', def: 'Hablado/cantado para avanzar historia.' },
+                            { term: 'Aria', def: 'Solista muy expresivo + acompañamiento.' }
+                        ]
+                    },
+                    {
+                        subtitle: 'Formas Instrumentales',
+                        list: [
+                            { term: 'Forma Ternaria', def: 'A + B + C o A + B + A.' },
+                            { term: 'Forma Sonata', def: 'Exposición > Desarrollo > Reexposición.' },
+                            { term: 'Concierto Grosso', def: 'Grupo de solistas vs. Orquesta.' },
+                            { term: 'Concierto Solista', def: 'Un instrumento vs. Orquesta.' }
+                        ]
+                    },
+                    { subtitle: 'J.S. Bach (Contexto)', text: 'Barroco. Maestro de capilla. Música para "diversiones y pasiones" de reyes.', highlight: false }
+                ]
+            }
+        ];
+
+        const repertoireData = [
+            { id: 1, title: 'Ut queant laxis (Himno a San Juan)', composer: 'Tradicional', texture: 'Monofonía', form: 'Himno Gregoriano', tags: ['Religioso'] },
+            { id: 2, title: 'Messiah - Aleluya', composer: 'G.F. Händel', texture: 'Homofonía', form: 'Oratorio', tags: ['Barroco', 'Coral'], note: 'Apunte: Ejemplo de Homofonía (aunque tiene polifonía).' },
+            { id: 3, title: 'Crucifixus', composer: 'Antonio Lotti', texture: 'Polifonía', form: 'Misa / Sacra', tags: ['Barroco', 'Imitativo'], note: 'Ejemplo clave de Polifonía.' },
+            { id: 4, title: 'Nessun Dorma', composer: 'Giacomo Puccini', texture: 'Melodía Acompañada', form: 'Ópera (Aria)', tags: ['Romántico', 'Vocal'] },
+            { id: 5, title: 'Tocata y Fuga en Re menor', composer: 'J.S. Bach', texture: 'Polifonía', form: 'Tocata y Fuga', tags: ['Barroco', 'Instrumental'], note: 'La fuga es estructura polifónica.' },
+            { id: 6, title: 'Ave Maria', composer: 'Franz Schubert', texture: 'Melodía Acompañada', form: 'Lied / Canción', tags: ['Romántico', 'Vocal'] },
+            { id: 7, title: 'Sinfonía Fantástica', composer: 'Hector Berlioz', texture: 'Melodía Acompañada', form: 'Sinfonía Programática', tags: ['Romántico', 'Orquestal'] },
+            { id: 8, title: 'Finlandia', composer: 'Jean Sibelius', texture: 'Homofonía / Compleja', form: 'Poema Sinfónico', tags: ['Nacionalismo'] },
+            { id: 9, title: 'Ride of the Valkyries', composer: 'Richard Wagner', texture: 'Polifonía / Compleja', form: 'Ópera', tags: ['Romántico', 'Wagner'] },
+            { id: 10, title: 'Piano Concerto No. 1', composer: 'P.I. Tchaikovsky', texture: 'Melodía Acompañada', form: 'Concierto Solista', tags: ['Romántico', 'Piano'] },
+            { id: 11, title: 'Piano Sonata No. 11', composer: 'W.A. Mozart', texture: 'Melodía Acompañada', form: 'Sonata', tags: ['Clásico', 'Piano'], note: 'Ejemplo de Forma Sonata.' },
+            { id: 12, title: 'Queen of the Night', composer: 'W.A. Mozart', texture: 'Melodía Acompañada', form: 'Ópera (Aria)', tags: ['Clásico', 'Vocal'] },
+            { id: 13, title: '9th Symphony', composer: 'L. van Beethoven', texture: 'Compleja', form: 'Sinfonía', tags: ['Clásico', 'Coral'] },
+            { id: 14, title: 'Spring (La Primavera)', composer: 'Antonio Vivaldi', texture: 'Melodía Acompañada', form: 'Concierto Solista', tags: ['Barroco', 'Violín'] },
+            { id: 15, title: 'Danza Macabra', composer: 'C. Saint-Saëns', texture: 'Melodía Acompañada', form: 'Poema Sinfónico', tags: ['Romántico'] },
+            { id: 16, title: 'Vesti la giubba', composer: 'R. Leoncavallo', texture: 'Melodía Acompañada', form: 'Ópera (Aria)', tags: ['Verismo'] },
+            { id: 17, title: 'Gloria in excelsis Deo', composer: 'Antonio Vivaldi', texture: 'Homofonía / Polifonía', form: 'Oratorio', tags: ['Barroco'], note: 'Clasificado como Oratorio en apuntes.' },
+        ];
+
+        // --- ESTADO ---
+        let studyMode = false;
+        let revealedCards = new Set();
+
+        // --- FUNCIONES DE RENDERIZADO ---
+
+        function getTextureColor(type) {
+            if (type.includes('Monofonía')) return 'bg-blue-900 text-blue-200 border-blue-500';
+            if (type.includes('Homofonía')) return 'bg-emerald-900 text-emerald-200 border-emerald-500';
+            if (type.includes('Polifonía')) return 'bg-purple-900 text-purple-200 border-purple-500';
+            if (type.includes('Melodía')) return 'bg-amber-900 text-amber-200 border-amber-500';
+            return 'bg-gray-800 text-gray-300 border-gray-600';
+        }
+
+        function renderTheory() {
+            const container = document.getElementById('tab-teoria');
+            container.innerHTML = theoryData.map(section => `
+                <section class="bg-[#1e1e1e] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
+                    <div class="bg-[#252525] px-6 py-4 border-b border-white/5 flex items-center gap-3">
+                        <i data-lucide="${section.icon}" class="text-teal-400 w-6 h-6"></i>
+                        <h2 class="text-lg font-bold text-teal-100">${section.title}</h2>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        ${section.description ? `<p class="text-lg text-slate-300 font-light border-l-4 border-teal-500 pl-4 italic">${section.description}</p>` : ''}
+                        
+                        ${section.content.map(item => `
+                            <div class="space-y-3">
+                                ${item.subtitle ? `<h3 class="text-amber-400 font-bold tracking-wide uppercase text-sm border-b border-white/10 pb-1 mb-3">${item.subtitle}</h3>` : ''}
+                                
+                                ${item.text ? `<p class="text-slate-300 leading-relaxed ${item.highlight ? 'bg-teal-900/30 p-3 rounded-lg border border-teal-500/30' : ''}">${item.text}</p>` : ''}
+
+                                ${item.list ? `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    ${item.list.map(li => `
+                                        <div class="bg-[#2a2a2a] p-3 rounded-lg border border-white/5 hover:border-teal-500/50 transition-colors flex flex-col gap-1">
+                                            <div class="flex items-center gap-2 text-teal-300 font-bold">
+                                                ${li.icon ? `<i data-lucide="${li.icon}" class="w-4 h-4 text-teal-500"></i>` : ''}
+                                                ${li.term}
+                                            </div>
+                                            <div class="text-sm text-slate-400">${li.def}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>` : ''}
+
+                                ${item.cards ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    ${item.cards.map(card => `
+                                        <div class="p-4 rounded-xl bg-[#2a2a2a] border-l-4 ${card.color} shadow-lg">
+                                            <h4 class="font-bold text-slate-100 mb-1">${card.title}</h4>
+                                            <p class="text-sm text-slate-400 mb-2 h-10">${card.desc}</p>
+                                            <div class="text-xs font-mono bg-black/30 p-2 rounded text-slate-300 truncate">
+                                                <span class="opacity-50 mr-2">🎵</span>${card.example}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderRepertoire() {
+            const grid = document.getElementById('repertoire-grid');
+            grid.innerHTML = repertoireData.map(song => {
+                const isRevealed = !studyMode || revealedCards.has(song.id);
+                const blurClass = isRevealed ? 'reveal-content' : 'blur-content';
+                const containerClass = isRevealed ? 'bg-[#1e1e1e] border-teal-900/50' : 'bg-[#252525] border-white/5 hover:border-indigo-500/50';
+                const eyeIcon = isRevealed ? 'eye' : 'eye-off';
+                const eyeColor = isRevealed ? 'text-teal-500' : 'text-indigo-400';
+
+                return `
+                <div onclick="toggleCard(${song.id})" 
+                     class="relative group cursor-pointer overflow-hidden rounded-xl border transition-all duration-300 ${containerClass}">
+                    
+                    ${studyMode ? `<div class="absolute top-3 right-3 transition-opacity duration-300 opacity-50">
+                         <i data-lucide="${eyeIcon}" class="w-5 h-5 ${eyeColor}"></i>
+                    </div>` : ''}
+
+                    <div class="p-5">
+                        <div class="mb-4 pr-6">
+                            <h3 class="text-lg font-bold text-slate-100 leading-tight mb-1 group-hover:text-teal-300 transition-colors">
+                                ${song.title}
+                            </h3>
+                            <p class="text-sm text-slate-400 font-medium">${song.composer}</p>
+                        </div>
+
+                        <div class="space-y-3 ${blurClass}">
+                            <div class="flex flex-wrap gap-2">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Textura</span>
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-bold border border-opacity-30 ${getTextureColor(song.texture)}">
+                                        ${song.texture}
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Forma/Género</span>
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-slate-500 border-opacity-30">
+                                        ${song.form}
+                                    </span>
+                                </div>
+                            </div>
+                            ${song.note ? `<div class="mt-3 pt-3 border-t border-white/5 text-xs text-slate-400 italic">💡 ${song.note}</div>` : ''}
+                        </div>
+                        
+                        ${!isRevealed ? `
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
+                            <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg transform group-hover:scale-110 transition-transform">
+                                ¿Cuál es?
+                            </span>
+                        </div>` : ''}
+                    </div>
+                    <div class="h-1 w-full ${isRevealed ? 'bg-gradient-to-r from-teal-600 to-indigo-600' : 'bg-slate-700'}"></div>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        // --- LÓGICA DE INTERFAZ ---
+
+        function switchTab(tab) {
+            const btnTeoria = document.getElementById('btn-teoria');
+            const btnReper = document.getElementById('btn-repertorio');
+            const contentTeoria = document.getElementById('tab-teoria');
+            const contentReper = document.getElementById('tab-repertorio');
+
+            if (tab === 'teoria') {
+                btnTeoria.className = "flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-teal-600 text-white shadow-md";
+                btnReper.className = "flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white";
+                contentTeoria.classList.remove('hidden');
+                contentReper.classList.add('hidden');
+            } else {
+                btnReper.className = "flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-indigo-600 text-white shadow-md";
+                btnTeoria.className = "flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white";
+                contentReper.classList.remove('hidden');
+                contentTeoria.classList.add('hidden');
+                renderRepertoire(); // Re-renderizar para asegurar iconos
+            }
+        }
+
+        function toggleStudyMode() {
+            studyMode = !studyMode;
+            const bg = document.getElementById('study-toggle-bg');
+            const circle = document.getElementById('study-toggle-circle');
+            const hideAllBtn = document.getElementById('hide-all-btn');
+
+            if (studyMode) {
+                bg.classList.replace('bg-slate-600', 'bg-indigo-500');
+                circle.classList.replace('translate-x-0', 'translate-x-6');
+                hideAllBtn.classList.remove('hidden');
+                revealedCards.clear(); // Ocultar todas al activar
+            } else {
+                bg.classList.replace('bg-indigo-500', 'bg-slate-600');
+                circle.classList.replace('translate-x-6', 'translate-x-0');
+                hideAllBtn.classList.add('hidden');
+            }
+            renderRepertoire();
+        }
+
+        function resetStudyCards() {
+            revealedCards.clear();
+            renderRepertoire();
+        }
+
+        function toggleCard(id) {
+            if (!studyMode) return;
+            
+            if (revealedCards.has(id)) {
+                revealedCards.delete(id);
+            } else {
+                revealedCards.add(id);
+            }
+            renderRepertoire();
+        }
+
+        // --- INICIALIZACIÓN ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTheory();
+            renderRepertoire();
+        });
+
+    </script>
+</body>
+</html>
+
